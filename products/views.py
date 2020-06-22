@@ -10,7 +10,6 @@ from .forms import ProductForm
 
 def all_products(request):
     """ A view to show all products, including sorting and search queries """
-
     products = Product.objects.all()
     query = None
     categories = None
@@ -18,7 +17,6 @@ def all_products(request):
     direction = None
 
     if request.GET:
-
         if 'sort' in request.GET:
             sortkey = request.GET['sort']
             sort = sortkey
@@ -29,16 +27,12 @@ def all_products(request):
             if sortkey == 'category':
                 sortkey = 'category__name'
 
-
-
             if 'direction' in request.GET:
                 direction = request.GET['direction']
                 if direction == 'desc':
                     sortkey = f'-{sortkey}'
 
             products = products.order_by(sortkey)        
-
-
 
         if 'category' in request.GET:
             categories = request.GET['category'].split(',')
@@ -70,11 +64,9 @@ def product_detail(request, product_id):
     """ A view to show individual product details """
 
     product = get_object_or_404(Product, pk=product_id)
-
     context = {
         'product': product,
     }
-
     return render(request, 'products/product_detail.html', context)
 
 def add_product(request):
@@ -82,9 +74,9 @@ def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            product = form.save()
             messages.success(request, 'Successfully added Product')
-            return redirect(reverse('add_product'))
+            return redirect(reverse('product_detail', args=[product.id]))
         else:
             messages.error(request, 'Failed to add a product. Check form is valid')
     else:
@@ -118,3 +110,11 @@ def edit_product(request, product_id):
     }
 
     return render(request, template, context)
+
+
+
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    product.delete()
+    messages.success(request, 'Product deleted!')
+    return redirect(reverse('products'))
