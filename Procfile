@@ -1,1 +1,1 @@
-web: gunicorn breno-bouique.wsgi:application
+web: gunicorn boutique_ado.wsgi:application
